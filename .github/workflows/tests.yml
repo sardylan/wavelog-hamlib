@@ -7,20 +7,6 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  adif4rs:
-    name: "ADIF4rs"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run tests
-        run: cd adif4rs && cargo test --verbose
-  hamlib-client:
-    name: "Hamlib Client"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run tests
-        run: cd hamlib-client && cargo test --verbose
   wavelog-hamlib:
     name: "Wavelog Hamlib"
     runs-on: ubuntu-latest
