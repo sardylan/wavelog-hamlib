@@ -30,9 +30,11 @@ use tokio::time::sleep;
 
 #[tokio::main]
 async fn main() {
-    logging::configure();
+    let configuration = Config::parse();
 
-    match program().await {
+    logging::configure(&configuration.log_level);
+
+    match program(&configuration).await {
         Ok(_) => {}
         Err(e) => {
             log::error!("{}", e)
@@ -40,9 +42,7 @@ async fn main() {
     }
 }
 
-async fn program() -> Result<(), WavelogHamlibError> {
-    let configuration = Config::parse();
-
+async fn program(configuration: &Config) -> Result<(), WavelogHamlibError> {
     log::trace!("Creating Wavelog client for {} with radio name \"{}\"", &configuration.wavelog_url, configuration.wavelog_radio);
     let wavelog_client = wavelog::Client::new(&configuration.wavelog_url, &configuration.wavelog_key);
 

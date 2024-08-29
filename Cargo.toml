@@ -1,6 +1,6 @@
 [package]
 name = "wavelog-hamlib"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Luca Cireddu <sardylan@gmail.com>"]
 description = "Simple tool to connect Hamlib rigctld instance with Wavelog"
 repository = "https://github.com/sardylan/wavelog-hamlib.git"

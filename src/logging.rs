@@ -14,13 +14,13 @@
  *
  */
 
-use log::LevelFilter;
+use log::{Level, LevelFilter};
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::Config;
 
-pub fn configure() {
+pub fn configure(level: &Level) {
     let console_encoder = PatternEncoder::new("{date(%Y-%m-%dT%H:%M:%S%.6f%:z)(utc)} {module} {highlight({level})} {message}{n}");
 
     let console_appender = ConsoleAppender::builder()
@@ -28,9 +28,17 @@ pub fn configure() {
         .encoder(Box::new(console_encoder))
         .build();
 
+    let level_filter = match level {
+        Level::Error => { LevelFilter::Error }
+        Level::Warn => { LevelFilter::Warn }
+        Level::Info => { LevelFilter::Info }
+        Level::Debug => { LevelFilter::Debug }
+        Level::Trace => { LevelFilter::Trace }
+    };
+
     log4rs::init_config(Config::builder()
         .appender(Appender::builder().build("stderr", Box::new(console_appender)))
-        .build(Root::builder().appender("stderr").build(LevelFilter::Trace))
+        .build(Root::builder().appender("stderr").build(level_filter))
         .unwrap()
     ).unwrap();
 }

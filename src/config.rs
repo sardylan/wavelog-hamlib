@@ -15,11 +15,33 @@
  */
 
 use clap::crate_name;
+use clap::value_parser;
 use clap::{ArgAction, Parser};
+use log::Level;
 
 #[derive(Parser, Debug)]
 #[command(version, author, about, long_about = None)]
 pub struct Config {
+    #[arg(
+        short = 'l',
+        long,
+        action = ArgAction::Set,
+        default_value = "WARN",
+        help = "Log level",
+        long_help = "Set the level of logging messages"
+    )]
+    pub log_level: Level,
+
+    #[arg(
+        short = 'i',
+        long,
+        action = ArgAction::Set,
+        default_value = "1000",
+        help = "Update interval",
+        long_help = "Set the duration of the interval between two updates (milliseconds)"
+    )]
+    pub interval: u64,
+
     #[arg(
         short = 'w',
         long,
@@ -62,6 +84,7 @@ pub struct Config {
     #[arg(short = 'p',
         long,
         action = ArgAction::Set,
+        value_parser(value_parser!(u16)),
         default_value = "4532",
         help = "rigctld port",
         long_help = "Set the port in which rigctld is listening"
