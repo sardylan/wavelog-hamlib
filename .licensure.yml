@@ -1,0 +1,28 @@
+excludes:
+  - \.gitignore
+  - .*lock
+  - .*.toml
+  - \.git/.*
+  - \.licensure\.yml
+  - README.*
+  - LICENSE.*
+  - .*\.(md|rst|txt)
+licenses:
+  - files: any
+    ident: GPL-3.0
+    authors:
+      - name: Luca Cireddu
+        email: sardylan@gmail.com
+    auto_template: true
+comments:
+  - extension:
+      - rs
+    columns: 80
+    commenter:
+      type: block
+      start_block_char: "/*\n"
+      per_line_char: " *"
+      end_block_char: " */"
+      comment_char: "//"
+      trailing_lines: 2
+
