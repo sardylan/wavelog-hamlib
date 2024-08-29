@@ -14,28 +14,67 @@
  *
  */
 
-use lazy_static::lazy_static;
+use clap::crate_name;
+use clap::{ArgAction, Parser};
 
+#[derive(Parser, Debug)]
+#[command(version, author, about, long_about = None)]
 pub struct Config {
+    #[arg(
+        short = 'w',
+        long,
+        action = ArgAction::Set,
+        required = true,
+        help = "Wavelog URL",
+        long_help = "Set the main URL of Wavelog instance"
+    )]
     pub wavelog_url: String,
+
+    #[arg(
+        short = 'k',
+        long,
+        action = ArgAction::Set,
+        required = true,
+        help = "Wavelog API-key",
+        long_help = "Wavelog API-key of the user"
+    )]
     pub wavelog_key: String,
+
+    #[arg(short = 'r',
+        long,
+        action = ArgAction::Set,
+        default_value = crate_name!(),
+        help = "Wavelog radio name",
+        long_help = "Set the name of the radio that appears on Wavelog"
+    )]
     pub wavelog_radio: String,
+
+    #[arg(
+        short = 'H',
+        long,
+        action = ArgAction::Set,
+        default_value = "localhost",
+        help = "rigctld address",
+        long_help = "rigctld hostname or address"
+    )]
     pub rigctl_host: String,
+
+    #[arg(short = 'p',
+        long,
+        action = ArgAction::Set,
+        default_value = "4532",
+        help = "rigctld port",
+        long_help = "Set the port in which rigctld is listening"
+    )]
     pub rigctl_port: u16,
-    pub rigctl_communication_timeout: u64,
-}
 
-lazy_static! {
-    pub static ref CONFIG: Config = get_config();
-}
-
-pub fn get_config() -> Config {
-    Config {
-        wavelog_url: "".to_string(),
-        wavelog_key: "".to_string(),
-        wavelog_radio: "".to_string(),
-        rigctl_host: "".to_string(),
-        rigctl_port: 4532,
-        rigctl_communication_timeout: 3000,
-    }
+    #[arg(
+        short = 't',
+        long,
+        action = ArgAction::Set,
+        default_value = "3000",
+        help = "rigctld timeout",
+        long_help = "Set the amount of time to wait for rigctl response (in milliseconds)"
+    )]
+    pub rigctl_timeout: u64,
 }

@@ -39,7 +39,7 @@ impl fmt::Display for WavelogHamlibError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self {
             WavelogHamlibError::Hamlib(e) => write!(f, "Hamlib error: {}", &e),
-            WavelogHamlibError::Wavelog(e) => write!(f, "Wavelog error: {}", &e)
+            WavelogHamlibError::Wavelog(e) => write!(f, "Wavelog error: {}", &e),
         }
     }
 }

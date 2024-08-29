@@ -15,23 +15,21 @@
  */
 
 mod errors;
-mod ui;
 mod config;
 mod logging;
 mod wavelog;
 
-use crate::config::CONFIG;
+use crate::config::Config;
 use crate::errors::WavelogHamlibError;
 use crate::wavelog::Update;
 use adif4rs::tag::mode::Mode;
+use clap::Parser;
 use hamlib_client::RigCtlClient;
 use std::time::Duration;
 use tokio::time::sleep;
 
 #[tokio::main]
 async fn main() {
-    ui::header();
-
     logging::configure();
 
     match program().await {
@@ -43,12 +41,14 @@ async fn main() {
 }
 
 async fn program() -> Result<(), WavelogHamlibError> {
-    log::trace!("Creating Wavelog client for {}: radio {}", &CONFIG.wavelog_url, CONFIG.wavelog_radio);
-    let wavelog_client = wavelog::Client::new(&CONFIG.wavelog_url, &CONFIG.wavelog_key);
+    let configuration = Config::parse();
 
-    log::trace!("Creating client for {}:{}", &CONFIG.rigctl_host, CONFIG.rigctl_port);
-    let mut rigctl = RigCtlClient::new(&CONFIG.rigctl_host, CONFIG.rigctl_port, None);
-    rigctl.set_communication_timeout(CONFIG.rigctl_communication_timeout);
+    log::trace!("Creating Wavelog client for {} with radio name \"{}\"", &configuration.wavelog_url, configuration.wavelog_radio);
+    let wavelog_client = wavelog::Client::new(&configuration.wavelog_url, &configuration.wavelog_key);
+
+    log::trace!("Creating client for {}:{}", &configuration.rigctl_host, configuration.rigctl_port);
+    let mut rigctl = RigCtlClient::new(&configuration.rigctl_host, configuration.rigctl_port, None);
+    rigctl.set_communication_timeout(configuration.rigctl_timeout);
 
     rigctl.connect().await?;
     log::info!("Connected");
@@ -71,10 +71,6 @@ async fn program() -> Result<(), WavelogHamlibError> {
         let rx_freq = rigctl.get_freq(rx_vfo).await?;
         log::trace!("{}: {}", &rx_vfo, &rx_freq);
 
-        // let tx_mode = rigctl.get_mode(tx_vfo).await?;
-        // log::trace!("{}: {}", &tx_vfo, &tx_mode);
-        // let tx_freq = rigctl.get_freq(tx_vfo).await?;
-        // log::trace!("{}: {}", &tx_vfo, &tx_freq);
         let tx_mode = rigctl.get_split_mode(rx_vfo).await?;
         log::trace!("{}: {}", &tx_vfo, &tx_mode);
         let tx_freq = rigctl.get_split_freq(rx_vfo).await?;
@@ -82,7 +78,7 @@ async fn program() -> Result<(), WavelogHamlibError> {
 
         log::debug!("Preparing update");
         let update = Update {
-            radio: String::from(&CONFIG.wavelog_radio),
+            radio: String::from(&configuration.wavelog_radio),
             frequency: tx_freq.frequency,
             mode: Mode::from(tx_mode.mode),
             frequency_rx: Some(rx_freq.frequency),
