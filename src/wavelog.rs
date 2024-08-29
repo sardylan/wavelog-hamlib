@@ -14,9 +14,8 @@
  *
  */
 
-use adif4rs::tag::mode::Mode;
-use adif4rs::tag::propagation_mode::PropagationMode;
 use chrono::{DateTime, Utc};
+use hamlib_client::adif::{Mode, PropagationMode};
 use reqwest::{Method, Url};
 use serde::{Deserialize, Serialize, Serializer};
 use std::fmt::{Display, Formatter};

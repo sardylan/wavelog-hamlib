@@ -22,10 +22,10 @@ mod wavelog;
 use crate::config::Config;
 use crate::errors::WavelogHamlibError;
 use crate::wavelog::Update;
-use adif4rs::tag::mode::Mode;
 use clap::Parser;
 use hamlib_client::RigCtlClient;
 use std::time::Duration;
+use hamlib_client::adif::Mode;
 use tokio::time::sleep;
 
 #[tokio::main]
