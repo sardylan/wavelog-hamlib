@@ -1,4 +1,4 @@
-name: Rust
+name: "Tests"
 on:
   push:
     branches: [ "main" ]
@@ -7,11 +7,24 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  build:
+  adif4rs:
+    name: "ADIF4rs"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        run: cargo build --verbose
       - name: Run tests
-        run: for DIR in $(find . -name Cargo.toml -printf "%h\n" | sort -u); do pushd "${DIR}" > /dev/null; cargo test --verbose; popd > /dev/null; done
+        run: cd adif4rs && cargo test --verbose
+  hamlib-client:
+    name: "Hamlib Client"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: cd hamlib-client && cargo test --verbose
+  wavelog-hamlib:
+    name: "Wavelog Hamlib"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: cargo test --verbose
