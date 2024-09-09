@@ -1,0 +1,52 @@
+name: Linux Builds
+on:
+  push:
+    branches:
+      - "!main"
+      - "*"
+  pull_request:
+    branches:
+      - "main"
+jobs:
+  build-gnu:
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            linker: ""
+            packages: ""
+          - target: arm-unknown-linux-gnueabihf
+            linker: arm-linux-gnueabihf-gcc
+            packages: gcc-arm-linux-gnueabihf
+          - target: aarch64-unknown-linux-gnu
+            linker: aarch64-linux-gnu-gcc
+            packages: gcc-aarch64-linux-gnu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install required packages
+        if: matrix.packages != ''
+        run: apt install --assume-yes ${{ matrix.packages }}
+      - name: Configure cargo linker to use
+        if: matrix.linker != ''
+        run: echo -ne '[target.aarch64-unknown-linux-gnu]\nlinker = ${{ matrix.linker }}' > .cargo/config
+      - name: Adds rust target
+        run: rustup target add ${{ matrix.target }}
+      - name: Build
+        run: cargo build --release --target=${{ matrix.target }}
+  build-alpine:
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+          - target: arm-unknown-linux-musleabihf
+          - target: aarch64-unknown-linux-musl
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Adds rust target
+        run: rustup target add ${{ matrix.target }}
+      - name: Build
+        run: cargo build --release --target=${{ matrix.target }}
