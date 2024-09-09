@@ -1,4 +1,4 @@
-name: Linux Builds
+name: "Builds - Linux"
 on:
   push:
     branches:
@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Install required packages
         if: matrix.packages != ''
-        run: apt install --assume-yes ${{ matrix.packages }}
+        run: sudo apt install --assume-yes ${{ matrix.packages }}
       - name: Configure cargo linker to use
         if: matrix.linker != ''
         run: echo -ne '[target.aarch64-unknown-linux-gnu]\nlinker = ${{ matrix.linker }}' > .cargo/config
