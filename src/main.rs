@@ -23,9 +23,9 @@ use crate::config::Config;
 use crate::errors::WavelogHamlibError;
 use crate::wavelog::Update;
 use clap::Parser;
+use hamlib_client::adif::Mode;
 use hamlib_client::RigCtlClient;
 use std::time::Duration;
-use hamlib_client::adif::Mode;
 use tokio::time::sleep;
 
 #[tokio::main]
@@ -104,6 +104,6 @@ async fn program(configuration: &Config) -> Result<(), WavelogHamlibError> {
         }
 
         log::debug!("Sleeping");
-        sleep(Duration::from_millis(1000)).await;
+        sleep(Duration::from_millis(configuration.interval)).await;
     }
 }
