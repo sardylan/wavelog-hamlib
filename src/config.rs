@@ -36,7 +36,7 @@ pub struct Config {
         short = 'i',
         long,
         action = ArgAction::Set,
-        default_value = "1000",
+        default_value = "2000",
         help = "Update interval",
         long_help = "Set the duration of the interval between two updates (milliseconds)"
     )]
