@@ -100,4 +100,14 @@ pub struct Config {
         long_help = "Set the amount of time to wait for rigctl response (in milliseconds)"
     )]
     pub rigctl_timeout: u64,
+
+    #[arg(
+        short = 's',
+        long,
+        action = ArgAction::Set,
+        default_value = "",
+        help = "Satellite name",
+        long_help = "Set the name of Satellite (empty values disable Sat Mode)"
+    )]
+    pub sat: String,
 }
