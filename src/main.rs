@@ -23,8 +23,9 @@ use crate::config::Config;
 use crate::errors::WavelogHamlibError;
 use crate::wavelog::Update;
 use clap::Parser;
-use hamlib_client::adif::Mode;
+use hamlib_client::adif::{Mode, PropagationMode};
 use hamlib_client::RigCtlClient;
+use std::string::String;
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -76,16 +77,33 @@ async fn program(configuration: &Config) -> Result<(), WavelogHamlibError> {
         let tx_freq = rigctl.get_split_freq(rx_vfo).await?;
         log::trace!("{}: {}", &tx_vfo, &tx_freq);
 
+        let update_prop_mode =
+            if !&configuration.sat.is_empty() {
+                log::debug!("Enabling SAT propagation mode");
+                Some(PropagationMode::SAT)
+            } else {
+                None
+            };
+
+        let update_tx_freq =
+            if &configuration.sat == "QO-100"
+                && tx_freq.frequency == rx_freq.frequency {
+                log::debug!("Manually setting TX Frequency for QO-100 satellite activity");
+                tx_freq.frequency - 8089500000
+            } else {
+                tx_freq.frequency
+            };
+
         log::debug!("Preparing update");
         let update = Update {
             radio: String::from(&configuration.wavelog_radio),
-            frequency: tx_freq.frequency,
+            frequency: update_tx_freq,
             mode: Mode::from(tx_mode.mode),
             frequency_rx: Some(rx_freq.frequency),
             mode_rx: Some(Mode::from(rx_mode.mode)),
-            prop_mode: None,
+            prop_mode: update_prop_mode,
             power: None,
-            sat_name: None,
+            sat_name: Some(String::from(&configuration.sat)).filter(String::is_empty),
         };
         log::trace!("Update: {}", &update);
 
