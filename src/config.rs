@@ -116,7 +116,7 @@ pub struct Config {
         long,
         action = ArgAction::Set,
         default_value = "",
-        help = "Froce mode",
+        help = "Force mode",
         long_help = "Force the mode reported (empty values is the same of not setting this option)"
     )]
     pub force_mode: String,
