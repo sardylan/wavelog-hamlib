@@ -82,7 +82,7 @@ async fn program(configuration: &Config) -> Result<(), WavelogHamlibError> {
 
         let (rx_mode, tx_mode) = if force_mode == Mode::None {
             let rx_mode = rigctl.get_mode(rx_vfo).await?;
-            let tx_mode = rigctl.get_mode(rx_vfo).await?;
+            let tx_mode = rigctl.get_mode(tx_vfo).await?;
             (Mode::from(rx_mode.mode), Mode::from(tx_mode.mode))
         } else {
             (force_mode, force_mode)
