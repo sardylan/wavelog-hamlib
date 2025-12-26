@@ -15,7 +15,7 @@
  */
 
 use hamlib_client::error::RigCtlError;
-use std::fmt;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
 pub enum WavelogHamlibError {
@@ -35,8 +35,8 @@ impl From<reqwest::Error> for WavelogHamlibError {
     }
 }
 
-impl fmt::Display for WavelogHamlibError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl Display for WavelogHamlibError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match &self {
             WavelogHamlibError::Hamlib(e) => write!(f, "Hamlib error: {}", &e),
             WavelogHamlibError::Wavelog(e) => write!(f, "Wavelog error: {}", &e),

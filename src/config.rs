@@ -17,7 +17,7 @@
 use clap::crate_name;
 use clap::value_parser;
 use clap::{ArgAction, Parser};
-use log::Level;
+use tracing::Level;
 
 #[derive(Parser, Debug)]
 #[command(version, author, about, long_about = None)]
