@@ -14,8 +14,8 @@
  *
  */
 
-mod errors;
 mod config;
+mod errors;
 mod logging;
 mod wavelog;
 
@@ -44,10 +44,19 @@ async fn main() {
 }
 
 async fn program(configuration: &Config) -> Result<(), WavelogHamlibError> {
-    log::trace!("Creating Wavelog client for {} with radio name \"{}\"", &configuration.wavelog_url, configuration.wavelog_radio);
-    let wavelog_client = wavelog::Client::new(&configuration.wavelog_url, &configuration.wavelog_key);
+    log::trace!(
+        "Creating Wavelog client for {} with radio name \"{}\"",
+        &configuration.wavelog_url,
+        configuration.wavelog_radio
+    );
+    let wavelog_client =
+        wavelog::Client::new(&configuration.wavelog_url, &configuration.wavelog_key);
 
-    log::trace!("Creating client for {}:{}", &configuration.rigctl_host, configuration.rigctl_port);
+    log::trace!(
+        "Creating client for {}:{}",
+        &configuration.rigctl_host,
+        configuration.rigctl_port
+    );
     let mut rigctl = RigCtlClient::new(&configuration.rigctl_host, configuration.rigctl_port, None);
     rigctl.set_communication_timeout(configuration.rigctl_timeout);
 
@@ -67,27 +76,33 @@ async fn program(configuration: &Config) -> Result<(), WavelogHamlibError> {
         let tx_vfo = split_vfo.tx_vfo;
         log::debug!("TX vfo: {}", &tx_vfo);
 
-        let rx_mode = rigctl.get_mode(rx_vfo).await?;
-        log::trace!("{}: {}", &rx_vfo, &rx_mode);
+        let force_mode = Mode::from(&configuration.force_mode.as_str());
+        log::debug!("Force mode: {}", &force_mode);
+
+        let (rx_mode, tx_mode) = if force_mode == Mode::None {
+            let rx_mode = rigctl.get_mode(rx_vfo).await?;
+            let tx_mode = rigctl.get_mode(rx_vfo).await?;
+            (Mode::from(rx_mode.mode), Mode::from(tx_mode.mode))
+        } else {
+            (force_mode, force_mode)
+        };
+        log::trace!("{} Mode: {}", &rx_vfo, &rx_mode);
+        log::trace!("{} Mode: {}", &tx_vfo, &tx_mode);
+
         let rx_freq = rigctl.get_freq(rx_vfo).await?;
         log::trace!("{}: {}", &rx_vfo, &rx_freq);
-
-        let tx_mode = rigctl.get_split_mode(rx_vfo).await?;
-        log::trace!("{}: {}", &tx_vfo, &tx_mode);
-        let tx_freq = rigctl.get_split_freq(rx_vfo).await?;
+        let tx_freq = rigctl.get_freq(tx_vfo).await?;
         log::trace!("{}: {}", &tx_vfo, &tx_freq);
 
-        let update_prop_mode =
-            if !&configuration.sat.is_empty() {
-                log::debug!("Enabling SAT propagation mode");
-                Some(PropagationMode::SAT)
-            } else {
-                None
-            };
+        let update_prop_mode = if !&configuration.sat.is_empty() {
+            log::debug!("Enabling SAT propagation mode");
+            Some(PropagationMode::SAT)
+        } else {
+            None
+        };
 
         let update_tx_freq =
-            if &configuration.sat == "QO-100"
-                && tx_freq.frequency == rx_freq.frequency {
+            if &configuration.sat == "QO-100" && tx_freq.frequency == rx_freq.frequency {
                 log::debug!("Manually setting TX Frequency for QO-100 satellite activity");
                 tx_freq.frequency - 8089500000
             } else {
@@ -98,9 +113,9 @@ async fn program(configuration: &Config) -> Result<(), WavelogHamlibError> {
         let update = Update {
             radio: String::from(&configuration.wavelog_radio),
             frequency: update_tx_freq,
-            mode: Mode::from(tx_mode.mode),
+            mode: tx_mode,
             frequency_rx: Some(rx_freq.frequency),
-            mode_rx: Some(Mode::from(rx_mode.mode)),
+            mode_rx: Some(rx_mode),
             prop_mode: update_prop_mode,
             power: None,
             sat_name: Some(String::from(&configuration.sat)).filter(String::is_empty),

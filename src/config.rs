@@ -110,4 +110,14 @@ pub struct Config {
         long_help = "Set the name of Satellite (empty values disable Sat Mode)"
     )]
     pub sat: String,
+
+    #[arg(
+        short = 'm',
+        long,
+        action = ArgAction::Set,
+        default_value = "",
+        help = "Froce mode",
+        long_help = "Force the mode reported (empty values is the same of not setting this option)"
+    )]
+    pub force_mode: String,
 }
