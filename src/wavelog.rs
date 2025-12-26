@@ -20,6 +20,7 @@ use reqwest::{Method, Url};
 use serde::{Deserialize, Serialize, Serializer};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+use tracing::{debug, trace};
 
 pub struct Update {
     pub radio: String,
@@ -55,10 +56,20 @@ struct Request {
 
 impl Display for Request {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} - {} - {}: {} {} {} {} {} {} {}",
-               self.key, self.timestamp, self.radio, self.frequency,
-               self.mode, self.frequency_rx, self.mode_rx, self.prop_mode,
-               self.power, self.sat_name)
+        write!(
+            f,
+            "{} - {} - {}: {} {} {} {} {} {} {}",
+            self.key,
+            self.timestamp,
+            self.radio,
+            self.frequency,
+            self.mode,
+            self.frequency_rx,
+            self.mode_rx,
+            self.prop_mode,
+            self.power,
+            self.sat_name
+        )
     }
 }
 
@@ -72,7 +83,10 @@ impl Request {
             mode: update.mode.to_string(),
             frequency_rx: update.frequency_rx.unwrap_or(0),
             mode_rx: update.mode_rx.unwrap_or(Mode::None).to_string(),
-            prop_mode: update.prop_mode.unwrap_or(PropagationMode::None).to_string(),
+            prop_mode: update
+                .prop_mode
+                .unwrap_or(PropagationMode::None)
+                .to_string(),
             power: update.power.unwrap_or(0),
             sat_name: update.sat_name.unwrap_or("".to_string()),
         }
@@ -104,20 +118,22 @@ impl Client {
     }
 
     pub async fn send_update(&self, update: Update) -> Result<bool, reqwest::Error> {
-        log::debug!("Sending data to Wavelog");
+        debug!("Sending data to Wavelog");
 
         let request_body = Request::generate(&self.key, update);
-        log::trace!("Request: {}", &request_body);
+        trace!("Request: {}", &request_body);
 
         let url = self.url.join("/api/radio").unwrap();
-        log::trace!("URL: {}", &url);
+        trace!("URL: {}", &url);
 
         let response_body: Response = reqwest::Client::new()
             .request(Method::POST, url.as_str())
             .json(&request_body)
-            .send().await?
-            .json().await?;
-        log::trace!("Response: {}", &response_body);
+            .send()
+            .await?
+            .json()
+            .await?;
+        trace!("Response: {}", &response_body);
         Ok(response_body.status == "success")
     }
 }

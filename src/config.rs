@@ -17,7 +17,7 @@
 use clap::crate_name;
 use clap::value_parser;
 use clap::{ArgAction, Parser};
-use log::Level;
+use tracing::Level;
 
 #[derive(Parser, Debug)]
 #[command(version, author, about, long_about = None)]
@@ -110,4 +110,14 @@ pub struct Config {
         long_help = "Set the name of Satellite (empty values disable Sat Mode)"
     )]
     pub sat: String,
+
+    #[arg(
+        short = 'm',
+        long,
+        action = ArgAction::Set,
+        default_value = "",
+        help = "Force mode",
+        long_help = "Forces the mode reported (empty values is the same of not setting this option)"
+    )]
+    pub force_mode: String,
 }
