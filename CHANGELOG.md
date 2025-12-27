@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.0
+
+Migrates logging to tracing
+
 ## v1.2.0
 
 Adds "sat" name configuration parameter and support for QO-100 operations
