@@ -2,7 +2,7 @@
 
 ## v1.3.0
 
-Migrate logging to tracing
+Migrates logging to tracing
 
 ## v1.2.0
 
